@@ -10,27 +10,23 @@ This repository contains a Jupyter notebook implementing explicit finite differe
 ### 1.1 The Heat Equation in One Dimension
 
 We consider the initial-boundary value problem
-\[
-\frac{\partial u}{\partial t} = \kappa \frac{\partial^2 u}{\partial x^2}, 
-\qquad x \in [0,L], \quad t \ge 0,
-\]
-with prescribed Dirichlet boundary conditions
-\[
-u(0,t) = c_1,\qquad u(L,t) = c_2,
-\]
-and an initial condition \(u(x,0) = f(x)\).
+
+**Heat equation (1D):**  
+$u_t = \kappa\, u_{xx}$ for $x \in [0,L]$ and $t \ge 0$.
+
+**Boundary conditions:**  
+$u(0,t) = c_1$,  
+$u(L,t) = c_2$.
+
+**Initial condition:**  
+$u(x,0) = f(x)$.
 
 ### 1.2 The Heat Equation in Two Dimensions
 
-In two spatial dimensions, the governing equation is
-\[
-\frac{\partial u}{\partial t} 
-= \kappa \left( \frac{\partial^2 u}{\partial x^2} + \frac{\partial^2 u}{\partial y^2} \right),
-\qquad (x,y)\in [0,L_x]\times[0,L_y],\; t\ge 0,
-\]
-again with Dirichlet boundary data and a specified initial temperature field \(u(x,y,0) = f(x,y)\).
+**Heat equation (2D):**  
+$u_t = \kappa (u_{xx} + u_{yy})$ for $(x,y)\in[0,L_x]\times[0,L_y]$, $t \ge 0$.
 
-Both models describe the diffusion of heat in homogeneous, isotropic media.
+The initial condition is $u(x,y,0) = f(x,y)$, with Dirichlet boundary conditions applied on the domain boundary.
 
 ---
 
@@ -38,83 +34,64 @@ Both models describe the diffusion of heat in homogeneous, isotropic media.
 
 ### 2.1 Spatial and Temporal Grids
 
-For the one-dimensional case, the domain is discretized into \(N_x + 1\) grid points with uniform spacing
-\[
-\Delta x = \frac{L}{N_x}.
-\]
-The temporal domain is discretized as  
-\[
-t_n = n\Delta t,\quad n = 0,1,\ldots,N_t.
-\]
+The domain $[0,L]$ is discretized with $N_x + 1$ uniformly spaced grid points:
 
-For the two-dimensional case, uniform Cartesian grids with spacings \(\Delta x\) and \(\Delta y\) are used.
+$\Delta x = L / N_x$.
+
+The temporal domain is discretized as $t_n = n\Delta t$, where $n = 0,\ldots,N_t$.
+
+For 2D simulations, uniform Cartesian grids are used in both $x$ and $y$.
 
 ### 2.2 Finite Difference Scheme (FTCS)
 
-The notebook implements the Forward Time, Centered Space (FTCS) explicit method. In one dimension, the update rule is
-\[
-u_i^{n+1} = u_i^n 
-+ \kappa \frac{\Delta t}{\Delta x^2}\left( u_{i+1}^n - 2u_i^n + u_{i-1}^n \right).
-\]
+The notebook implements the classical Forward Time, Centered Space (FTCS) explicit method.
 
-In two dimensions, the standard five-point Laplacian stencil is used:
-\[
-u_{i,j}^{n+1} = u_{i,j}^n
-+ \kappa \Delta t\left(
-\frac{u_{i+1,j}^n - 2u_{i,j}^n + u_{i-1,j}^n}{\Delta x^2}
-+
-\frac{u_{i,j+1}^n - 2u_{i,j}^n + u_{i,j-1}^n}{\Delta y^2}
-\right).
-\]
+**1D update rule:**  
+$u_i^{n+1} = u_i^n + \kappa (\Delta t / \Delta x^2)(u_{i+1}^n - 2u_i^n + u_{i-1}^n)$.
+
+**2D update rule:**  
+$u_{i,j}^{n+1} = u_{i,j}^n + \kappa \Delta t\left[(u_{i+1,j}^n - 2u_{i,j}^n + u_{i-1,j}^n)/\Delta x^2 + (u_{i,j+1}^n - 2u_{i,j}^n + u_{i,j-1}^n)/\Delta y^2\right]$.
 
 ### 2.3 Stability Condition
 
-The FTCS method is conditionally stable. For the one-dimensional case,
-\[
-\Delta t \le \frac{\Delta x^2}{2\kappa}.
-\]
+For 1D, FTCS stability requires:
 
-For two dimensions, the sufficient condition becomes
-\[
-\Delta t \le \frac{1}{4\kappa}\,\min\{\Delta x^2,\;\Delta y^2\}.
-\]
+$\Delta t \le \Delta x^2 / (2\kappa)$.
 
-The notebook automatically evaluates these conditions and reports whether the chosen discretization satisfies them.
+For 2D, a sufficient stability condition is:
+
+$\Delta t \le \min(\Delta x^2, \Delta y^2) / (4\kappa)$.
+
+The notebook computes these conditions automatically and reports whether the chosen discretization is stable.
 
 ---
 
 ## 3. Initial Conditions Implemented
 
-Several initializations are included to illustrate distinct diffusion behaviors.
-
 ### 3.1 One-Dimensional Heated-End Configuration (Primary Simulation)
 
-The first simulation models a rod with elevated temperatures at both ends:
-\[
-u(0,0) = u(L,0) = 500,\qquad 
-u(x,0) = 0 \ \text{for} \ 0 < x < L.
-\]
-The Dirichlet boundary values remain fixed at 500 for all time. This configuration produces symmetric inward heat propagation.
+The first simulation models a rod whose endpoints are maintained at a fixed high temperature:
+
+$u(0,0) = u(L,0) = 500$,  
+$u(x,0) = 0$ for $0 < x < L$.
+
+The boundary temperatures remain fixed at 500 for all $t > 0$, producing symmetric inward diffusion.
 
 ### 3.2 One-Dimensional Gaussian Initial Condition
 
-A second simulation employs a smooth initial condition:
-\[
-u(x,0) = \exp\!\left(-\frac{(x - L/2)^2}{2\sigma^2}\right),
-\]
-with boundary values held constant at their initial endpoints.
+$u(x,0) = \exp[-(x - L/2)^2 / (2\sigma^2)]$.
+
+The boundary conditions remain constant throughout the simulation.
 
 ### 3.3 Two-Dimensional Gaussian Initial Condition
 
-A radially symmetric Gaussian profile serves as the initial condition:
-\[
-u(x,y,0) = A \exp\!\left(-\frac{(x-x_0)^2 + (y-y_0)^2}{2\sigma^2}\right),
-\]
-demonstrating isotropic diffusion on a rectangular grid.
+$u(x,y,0) = A\exp[-((x-x_0)^2 + (y-y_0)^2)/(2\sigma^2)]$.
+
+This produces radially symmetric diffusion behavior.
 
 ### 3.4 Two-Dimensional Constant Initial Condition
 
-A uniform initial temperature distribution evolves under the same explicit update, allowing visualization of diffusion under homogeneous initial data.
+A uniform initial temperature field is evolved using the same explicit scheme.
 
 ---
 
@@ -122,37 +99,32 @@ A uniform initial temperature distribution evolves under the same explicit updat
 
 The notebook uses:
 
-- **NumPy** for vectorized numerical updates  
-- **Matplotlib** for visualization and animation  
-- **HTML5 video export** for reliable display of time evolution  
-- Efficient slicing operations for interior-grid updates in 1D and 2D  
-- Automatic construction of simulation arrays sized according to discretization parameters  
+- NumPy for vectorized numerical operations  
+- Matplotlib for static plots and animations  
+- HTML5 video export for reliable visualization  
+- Efficient slicing for interior-grid updates in both 1D and 2D  
 
-All computations are performed in pure Python without external PDE libraries, providing a transparent view of the underlying numerical scheme.
+All computations are implemented directly, without reliance on external PDE-solving libraries, providing transparency in the numerical scheme.
 
 ---
 
 ## 5. Visualization of Solutions
 
-Animations are generated for all simulations, including:
+The simulations include:
 
-- 1D time-evolving line plots  
-- 1D space–time heatmaps  
-- 2D animated heatmaps showing full spatial evolution  
+- Time-evolving 1D line plots  
+- Space–time heatmaps for 1D diffusion  
+- Animated heatmaps for 2D simulations  
 
-These visualizations provide qualitative confirmation of expected diffusive behavior, such as smoothing of discontinuities, inward propagation from high-temperature boundaries, and radial spreading of Gaussian profiles.
+These visualizations clearly demonstrate characteristic diffusive behavior such as smoothing of discontinuities, inward propagation from heated boundaries, and radial spreading of Gaussian temperature profiles.
 
 ---
 
 ## 6. Reproducibility
 
 ### Dependencies
+
 - Python 3.8+  
 - NumPy  
 - Matplotlib  
 - Jupyter Notebook  
-
-### Execution
-Run:
-```bash
-jupyter notebook
